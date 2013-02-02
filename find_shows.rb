@@ -2,11 +2,13 @@ require 'sinatra'
 require 'nokogiri'
 require 'open-uri'
 require 'json'
+require 'net/ftp'
+require 'stringio'
 
 
-get '/shows' do
-	content_type :json
-	current_shows_json
+get '/update_shows' do
+	upload
+	"Upload completed."
 end
 
 
@@ -85,9 +87,28 @@ def find_shows
 
 end
 
-def current_shows_json
+# def current_shows_json
 
-	shows = find_shows
-	return shows.to_json
+# 	shows = find_shows
+# 	return shows.to_json
+
+# end
+
+def upload
+
+	data = find_shows.to_json
+
+	Net::FTP.open('ftp.ryancatalani.com') do |ftp|
+		ftp.login("", "")
+
+		# Based on http://stackoverflow.com/questions/5223763/how-to-ftp-in-ruby-without-first-saving-the-text-file
+		f = StringIO.new(data)
+		begin
+			ftp.storlines('STOR shows.json', f)
+		ensure
+			f.close
+		end
+
+	end
 
 end
