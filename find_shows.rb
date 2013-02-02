@@ -26,7 +26,10 @@ get '/' do
 	end
 
 
-	erb :index
+	index_str = erb :index
+	upload(index_str, 'index.html')
+
+	"Uploaded OK."
 end
 
 
@@ -159,9 +162,7 @@ def channels
 
 end
 
-def upload
-
-	data = find_shows.to_json
+def upload(data, filename)
 
 	Net::FTP.open('ftp.ryancatalani.com') do |ftp|
 		ftp.login(ENV['ECTV_USER'], ENV['ECTV_PASS'])
@@ -169,7 +170,7 @@ def upload
 		# Based on http://stackoverflow.com/questions/5223763/how-to-ftp-in-ruby-without-first-saving-the-text-file
 		f = StringIO.new(data)
 		begin
-			ftp.storlines('STOR shows.json', f)
+			ftp.storlines("STOR #{filename}", f)
 		ensure
 			f.close
 		end
