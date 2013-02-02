@@ -60,6 +60,7 @@ def find_shows
 			pm = true
 			shour -= 12
 		end
+		shour = 12 if shour == 0
 		smin = smin.to_s
 		smin << '0' if smin.length == 1
 		show_time = "#{shour}:#{smin} "
