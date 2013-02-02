@@ -29,32 +29,13 @@ end
 
 private
 
-def print_url
-	hour_slug = Time.now.hour
-	min_slug = '00'
-	cur_min = Time.now.min
-	if cur_min < 20
-		min_slug = '00'
-	elsif cur_min < 50
-		min_slug = '30'
-	else
-		min_slug = '00'
-		hour_slug += 1
-	end
-	time_slug = "%Y-%m-%d/#{hour_slug}:#{time_slug}"
-	url = "http://tvlistings.aol.com/listings/ma/boston/emerson-college/MA63993/print/#{time_slug}"
-end
-
-def main_url
-	return "http://tvlistings.aol.com/listings/ma/boston/emerson-college/MA63993"
-end
-
 def find_shows
 	channels = {}
 		# channels["123456"] => { channel_number: 100, shows: ["Show Name"], show_times: ["3:30 pm"] }
 		# where "123456" is the TV guide ID
 
-	doc = Nokogiri::HTML(open(main_url))
+	tv_guide_url = 'http://tvlistings.aol.com/listings/ma/boston/emerson-college/MA63993'
+	doc = Nokogiri::HTML(open(tv_guide_url))
 	doc.css('.grid-source').each do |channel_div|
 		id = channel_div.attr('id').gsub('grid-source-','')
 		channels[id] = {}
