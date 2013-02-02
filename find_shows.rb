@@ -165,6 +165,7 @@ end
 def upload(data, filename)
 
 	Net::FTP.open('ftp.ryancatalani.com') do |ftp|
+		ftp.passive = true
 		ftp.login(ENV['ECTV_USER'], ENV['ECTV_PASS'])
 
 		# Based on http://stackoverflow.com/questions/5223763/how-to-ftp-in-ruby-without-first-saving-the-text-file
