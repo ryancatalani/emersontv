@@ -1,0 +1,57 @@
+body {
+  font: 1.2em/1.1em "proxima-nova", "Helvetica Neue", Arial, Helvetica, sans-serif;
+  background: #ccc;
+  margin: 0;
+  padding: 0; }
+
+a:link, a:visited {
+  color: #fff;
+  text-decoration: none;
+  border-bottom: 1px solid #dddddd; }
+a:hover, a:active {
+  color: #ddd; }
+
+.wrap {
+  width: 480px;
+  background: #fff;
+  margin: 20px auto;
+  -webkit-box-shadow: 0 0 15px 0px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 0 0 15px 0px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 15px 0px rgba(0, 0, 0, 0.3); }
+  .wrap .wrap_inner {
+    padding: 20px; }
+  @media screen and (max-width: 480px) {
+    .wrap {
+      width: 90%; } }
+
+header {
+  background: #56408e;
+  padding: 35px 25px; }
+
+footer {
+  background: #999;
+  padding: 20px;
+  color: #fff;
+  font-size: 0.9em;
+  margin-top: 30px; }
+
+h1 {
+  color: #fff;
+  padding: 0;
+  margin: 0;
+  font-size: 1.5em;
+  line-height: 1em; }
+
+#channels {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%; }
+  #channels td {
+    vertical-align: top;
+    border-bottom: 1px solid #cccccc;
+    padding: 10px; }
+  #channels tr:last-child td {
+    border-bottom: none; }
+
+.current_show {
+  color: #bbb; }

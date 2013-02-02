@@ -11,6 +11,24 @@ get '/update_shows' do
 	"Upload completed."
 end
 
+get '/' do
+	init_channels = channels
+	shows = find_shows
+	@channels = []
+
+	init_channels.each do |channel|
+		c = channel
+		c_show = shows[channel[0]]
+		unless c_show.nil? || c_show.count(nil) == c_show.count
+			c << c_show
+		end
+		@channels << c
+	end
+
+
+	erb :index
+end
+
 
 private
 
@@ -83,23 +101,70 @@ def find_shows
 		current_shows[channel] << current_show_time
 	end
 
+	# => [ ["Show name", "Show start time"], [], ... ]
+	# index corresponds to channel number
 	return current_shows
 
 end
 
-# def current_shows_json
+def channels
 
-# 	shows = find_shows
-# 	return shows.to_json
+	channels = [
+		[2, "PBS"],
+		[3, "The Emerson Channel"],
+		[6, "CBS"],
+		[8, "ABC"],
+		[9, "NBC"],
+		[10, "Fox (local)"],
+		[11, "TV 38"],
+		[12, "CW"],
+		[13, "ESPN"],
+		[14, "CNN"],
+		[15, "Headline News"],
+		[16, "Fox News"],
+		[17, "CNBC"],
+		[18, "TBS"],
+		[21, "ESPN2"],
+		[23, "USA"],
+		[24, "TNT"],
+		[25, "Nickelodeon"],
+		[26, "CSPAN"],
+		[27, "Weather Channel"],
+		[28, "NESN"],
+		[29, "Disney"],
+		[30, "Discovery"],
+		[31, "A&E"],
+		[32, "MSNBC"],
+		[33, "Travel Chanel"],
+		[34, "History Channel"],
+		[36, "Fox Sports New England"],
+		[37, "Comedy Central"],
+		[38, "E! Entertainment"],
+		[39, "Lifetime"],
+		[40, "Cartoon Network"],
+		[41, "VH1"],
+		[42, "MTV"],
+		[46, "CSPAN2"],
+		[47, "BET"],
+		[48, "Bravo"],
+		[49, "TLC"],
+		[56, "The Emerson Channel"],
+		[57, "Emerson Info 57"],
+		[60, "Emerson Journalism Channel"],
+		[63, "mtvU"],
+		[65, "WECB"]
+	]
 
-# end
+	return channels
+
+end
 
 def upload
 
 	data = find_shows.to_json
 
 	Net::FTP.open('ftp.ryancatalani.com') do |ftp|
-		ftp.login("", "")
+		ftp.login(ENV['ECTV_USER'], ENV['ECTV_PASS'])
 
 		# Based on http://stackoverflow.com/questions/5223763/how-to-ftp-in-ruby-without-first-saving-the-text-file
 		f = StringIO.new(data)
