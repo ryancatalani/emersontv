@@ -6,8 +6,10 @@ get '/' do
 end
 
 get '/update' do
-
-	generate_page(true)
-
+	generate_page('update')
 	"Uploaded OK."
 end
+
+# get '/test' do
+# 	generate_page('show')
+# end

@@ -5,7 +5,7 @@ require 'net/ftp'
 require 'stringio'
 require 'erb'
 
-def generate_page for_sinatra=false
+def generate_page type=nil
 	init_channels = channels
 	shows = find_shows
 	@channels = []
@@ -19,8 +19,10 @@ def generate_page for_sinatra=false
 		@channels << c
 	end
 
-	if for_sinatra
+	if type == 'update'
 		index_str = erb :index
+	elsif type == 'show'
+		return erb :index
 	else
 		index_str_erb = ERB.new(File.new('views/index.erb').read)
 		index_str = index_str_erb.result
