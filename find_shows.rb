@@ -5,12 +5,6 @@ require 'json'
 require 'net/ftp'
 require 'stringio'
 
-
-get '/update_shows' do
-	upload
-	"Upload completed."
-end
-
 get '/' do
 	init_channels = channels
 	shows = find_shows
@@ -118,7 +112,7 @@ def channels
 		[6, "CBS"],
 		[8, "ABC"],
 		[9, "NBC"],
-		[10, "Fox (local)"],
+		[10, "Fox"],
 		[11, "TV 38"],
 		[12, "CW"],
 		[13, "ESPN"],
