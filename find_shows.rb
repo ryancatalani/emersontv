@@ -4,10 +4,13 @@ require 'json'
 require 'net/ftp'
 require 'stringio'
 require 'erb'
+require 'net/http'
+require 'uri'
+require 'time'
 
 def generate_page type=nil
 	init_channels = channels
-	shows = find_shows
+	shows = find_shows(true)
 	@channels = []
 
 	init_channels.each do |channel|
@@ -33,7 +36,31 @@ end
 
 private
 
-def find_shows
+def json_urls
+	t = Time.now.utc
+	hour_slug = t.hour
+	min_slug = '00'
+	cur_min = t.min
+	if cur_min < 20
+		min_slug = '00'
+	elsif cur_min < 50
+		min_slug = '30'
+	else
+		min_slug = '00'
+		hour_slug += 1
+	end
+	date_slug = t.strftime('%Y-%m-%d')
+	time_slug = "#{date_slug}/#{hour_slug}:#{min_slug}"
+	urls = []
+	0.upto(2) do |x|
+		urls << "http://tvlistings.aol.com/shows/MA63993/events/#{time_slug}/chunk/#{x}/offset/0.json"
+	end
+
+	logger.info "urls: #{urls}"
+	return urls
+end
+
+def find_shows from_json=false
 	channels = {}
 		# channels["123456"] => { channel_number: 100, shows: ["Show Name"], show_times: ["3:30 pm"] }
 		# where "123456" is the TV guide ID
@@ -48,30 +75,54 @@ def find_shows
 		channels[id][:show_times] = []
 	end
 
-	doc.css('.grid-event').each do |show_div|
-		id = show_div.attr('id').gsub('id-','')
-		id_comps = id.split('_')
-		channel_id = id_comps.first
-		shour, smin = id_comps.last.split('X').map(&:to_i)
-		show_name = show_div.attr('title')
-
-		pm = false
-		shour -= Time.now.dst? ? 4 : 5
-		shour += 24 if shour < 0
-		if shour >= 12
-			pm = true
-			shour -= 12
+	if from_json
+		urls = json_urls
+		show_data = []
+		urls.each do |url|
+			begin
+				uri = URI.parse(url)
+				res = Net::HTTP.get_response(uri)
+				body = res.body
+				json = JSON.parse(body)
+				show_data << json
+			end
 		end
-		shour = 12 if shour == 0
-		smin = smin.to_s
-		smin << '0' if smin.length == 1
-		show_time = "#{shour}:#{smin} "
-		show_time += pm ? 'p.m.' : 'a.m.'
+		show_data.flatten!
+		show_data.each do |h|
+			channel_id = h['sourceId']
+			time = Time.parse("#{h['dt']} UTC")
+			time -= Time.now.dst? ? 4*60*60 : 5*60*60
+			show_time = time.strftime('%l:%M %P').strip
+			show_name = h['title']
 
-		channels[channel_id][:shows] << show_name
-		channels[channel_id][:show_times] << show_time
+			channels[channel_id][:shows] << show_name
+			channels[channel_id][:show_times] << show_time
+		end
+	else
+		doc.css('.grid-event').each do |show_div|
+			id = show_div.attr('id').gsub('id-','')
+			id_comps = id.split('_')
+			channel_id = id_comps.first
+			shour, smin = id_comps.last.split('X').map(&:to_i)
+			show_name = show_div.attr('title')
+
+			pm = false
+			shour -= Time.now.dst? ? 4 : 5
+			shour += 24 if shour < 0
+			if shour >= 12
+				pm = true
+				shour -= 12
+			end
+			shour = 12 if shour == 0
+			smin = smin.to_s
+			smin << '0' if smin.length == 1
+			show_time = "#{shour}:#{smin} "
+			show_time += pm ? 'pm' : 'am'
+
+			channels[channel_id][:shows] << show_name
+			channels[channel_id][:show_times] << show_time
+		end
 	end
-
 
 	current_shows = []
 	channels.each do |k,v|
