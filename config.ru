@@ -1,2 +1,2 @@
-require './find_shows'
+require './main'
 run Sinatra::Application
