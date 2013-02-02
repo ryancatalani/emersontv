@@ -1,11 +1,11 @@
-require 'sinatra'
 require 'nokogiri'
 require 'open-uri'
 require 'json'
 require 'net/ftp'
 require 'stringio'
+require 'erb'
 
-get '/' do
+def generate_page for_sinatra=false
 	init_channels = channels
 	shows = find_shows
 	@channels = []
@@ -19,13 +19,15 @@ get '/' do
 		@channels << c
 	end
 
+	if for_sinatra
+		index_str = erb :index
+	else
+		index_str_erb = ERB.new(File.new('views/index.erb').read)
+		index_str = index_str_erb.result
+	end
 
-	index_str = erb :index
 	upload(index_str, 'index.html')
-
-	"Uploaded OK."
 end
-
 
 private
 
