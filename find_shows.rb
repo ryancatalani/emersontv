@@ -56,7 +56,6 @@ def json_urls
 		urls << "http://tvlistings.aol.com/shows/MA63993/events/#{time_slug}/chunk/#{x}/offset/0.json"
 	end
 
-	logger.info "urls: #{urls}"
 	return urls
 end
 
