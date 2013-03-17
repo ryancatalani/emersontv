@@ -7,6 +7,7 @@ require 'erb'
 require 'net/http'
 require 'uri'
 require 'time'
+require 'tzinfo'
 
 def generate_page type=nil
 	init_channels = channels
@@ -74,6 +75,9 @@ def find_shows from_json=false
 		channels[id][:show_times] = []
 	end
 
+	tz = TZInfo::Timezone.get('America/New_York')
+	dst = tz.period_for_utc(tz.now).dst?
+
 	if from_json
 		urls = json_urls
 		show_data = []
@@ -90,7 +94,7 @@ def find_shows from_json=false
 		show_data.each do |h|
 			channel_id = h['sourceId']
 			time = Time.parse("#{h['dt']} UTC")
-			time -= Time.now.dst? ? 4*60*60 : 5*60*60
+			time -= dst ? 4*60*60 : 5*60*60
 			show_time = time.strftime('%l:%M %P').strip
 			show_name = h['title']
 
@@ -106,7 +110,7 @@ def find_shows from_json=false
 			show_name = show_div.attr('title')
 
 			pm = false
-			shour -= Time.now.dst? ? 4 : 5
+			shour -= dst ? 4 : 5
 			shour += 24 if shour < 0
 			if shour >= 12
 				pm = true
