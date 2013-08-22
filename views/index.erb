@@ -33,6 +33,9 @@
                             <%= channel[1] %>
                             <% if channel[2] %>
                                 <div class="current_show"><%= channel[2][0] %> (<%= channel[2][1] %>)</div>
+                                <% if channel[2][2] && ((channel[2][2] != channel[2][0]) && (channel[2][3] != channel[2][1])) %>
+                                    <div class="current_show">Next up: <%= channel[2][2] %> (<%= channel[2][3] %>)</div>
+                                <% end %>
                             <% end %>
                         </td>
                     </tr>

@@ -38,23 +38,29 @@ end
 private
 
 def json_urls
-	t = Time.now.utc
-	hour_slug = t.hour
-	min_slug = '00'
-	cur_min = t.min
-	if cur_min < 20
+	time_slugs = []
+	0.upto(2) do |offset|
+		t = Time.now.utc + (offset * 60 * 30)
+		hour_slug = t.hour
 		min_slug = '00'
-	elsif cur_min < 50
-		min_slug = '30'
-	else
-		min_slug = '00'
-		hour_slug += 1
+		cur_min = t.min
+		if cur_min < 20
+			min_slug = '00'
+		elsif cur_min < 50
+			min_slug = '30'
+		else
+			min_slug = '00'
+			hour_slug += 1
+		end
+		date_slug = t.strftime('%Y-%m-%d')
+		time_slugs << "#{date_slug}/#{hour_slug}:#{min_slug}"
 	end
-	date_slug = t.strftime('%Y-%m-%d')
-	time_slug = "#{date_slug}/#{hour_slug}:#{min_slug}"
+
 	urls = []
-	0.upto(2) do |x|
-		urls << "http://tvlistings.aol.com/shows/MA63993/events/#{time_slug}/chunk/#{x}/offset/0.json"
+	time_slugs.each do |time_slug|
+		0.upto(2) do |x|
+			urls << "http://tvlistings.aol.com/shows/MA63993/events/#{time_slug}/chunk/#{x}/offset/0.json"
+		end
 	end
 
 	return urls
@@ -130,12 +136,14 @@ def find_shows from_json=false
 	current_shows = []
 	channels.each do |k,v|
 		channel = v[:channel_number]
-		current_show = v[:shows].first
-		current_show_time = v[:show_times].first
+		current_show = v[:shows][0,2]
+		current_show_time = v[:show_times][0,2]
 
 		current_shows[channel] = []
-		current_shows[channel] << current_show
-		current_shows[channel] << current_show_time
+		current_shows[channel] << current_show[0]
+		current_shows[channel] << current_show_time[0]
+		current_shows[channel] << current_show[1]
+		current_shows[channel] << current_show_time[1]
 	end
 
 	# => [ ["Show name", "Show start time"], [], ... ]
